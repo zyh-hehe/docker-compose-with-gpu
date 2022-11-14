@@ -27,7 +27,9 @@
    ```shell
    # 首先换源，此处以centos7为例。据说ubuntu不用换，直接装就行，我也不清楚
    distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+   
    curl -s -L https://nvidia.github.io/nvidia-container-runtime/$distribution/nvidia-container-runtime.repo | sudo tee /etc/yum.repos.d/nvidia-container-runtime.repo
+   
    # 安装nvidia-container-runtime
    sudo yum install nvidia-container-runtime
    ```
@@ -166,4 +168,30 @@
 
    - 你问我为什么在docker里用gpu？好问题，之后可能会在bitnami/spark镜像的基础上打一个装了pytorch的镜像，额，我先睡了。
 
+   - 顺带一提，pytorch预览版适配了Apple Silicon （M1/M1 Pro/M2），可以使用mps进行加速了。安装方式如下：
+   
+     ![image-20221115030803561](README.assets/image-20221115030803561.png)
+   
+     使用方式如下：
+   
+     ```python
+     def get_device():
+     	if torch.cuda.is_available():
+     		return 'cuda'
+     	elif getattr(torch.backends,'mps',None) is not None and torch.backends.mps.is_available():
+     		return 'mps'
+     	else:
+     		return 'cpu'
+     
+     device = get_device()
+     print(device)
+     # mps
+     ```
+   
+     测评如下：（支持柏油校友）
+   
+     【PyTorch支持M1 GPU加速了! 提升有多大?】 https://www.bilibili.com/video/BV1a341137Sb/?share_source=copy_web&vd_source=6aa6d9106049fcd69621d5ea626cd885
+   
+     我也试了试，感觉就图一乐，不如N卡一根——
+   
    - 有什么问题欢迎提issue，但这个不会真有人看吧，毕竟只是我的奇怪经历总结
